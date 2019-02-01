@@ -1,25 +1,48 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import Dashboard from "./component/dashboard/Dashboard";
+import Form from "./component/form/Form";
+import Header from "./component/header/Header";
+import axios from 'axios';
+
+import "./App.css";
 
 class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      products: [],
+    };
+  }
+
+  componentDidMount(){
+    axios.get('/api/inventory').then(response => {
+      let products = response.data;
+      console.log(products);
+      this.setState({
+        products: products,
+      })
+  })
+}
+
+addInventory = (name, price, image) => {
+  axios.post("/api/inventory", {name, price, image} ).then( response => {
+    this.setState({
+      products: [...this.state.products, {
+        name: name,
+        price: price,
+        image: image
+      }]
+    })
+  })
+};
+  
   render() {
+    let {products} = this.state;
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <Header />
+        <Dashboard products={products} addInventory={this.addInventory} />
+        <Form />
       </div>
     );
   }
